@@ -1,5 +1,5 @@
 #https://docs.microsoft.com/en-us/azure/cognitive-services/face/quickstarts/python-sdk
-import asyncio, io, glob, os, sys, time, uuid, requests
+import asyncio, io, glob, os, sys, time, uuid, requests, random
 from urllib.parse import urlparse
 from io import BytesIO
 from PIL import Image, ImageDraw
@@ -13,10 +13,13 @@ load_dotenv()
 key = os.environ["FACE_KEY"]
 endpoint = os.environ["FACE_ENDPOINT"]
 
-meme_path = os.path.dirname(os.path.realpath(__file__) + "/Memes")
-print(meme_path)
-for r, d, f in os.walk(meme_path):
-    print (f)
+meme_folder_path = os.path.dirname(os.path.realpath(__file__)) + "/Memes"
+meme_path = ""
+for r, d, f in os.walk(meme_folder_path):
+    randomint = random.randint(1,len(f))
+    meme_path = meme_folder_path + f[randomint]
+    print (meme_path)
+    #f is the list of files in list
 
 face_client = FaceClient(endpoint, CognitiveServicesCredentials(key))
 
