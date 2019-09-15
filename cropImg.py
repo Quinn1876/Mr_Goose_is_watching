@@ -21,8 +21,11 @@ def resizeImg(img, size:tuple)
             except IOError:
                 print "cannot resize '%s'" % infile
                 
-def imgComposition(meme, face top, left):
+def imgComposition(meme, face, top, left):
     # Top Left is the location on the meme where the face goes
+    # Both meme and face should be pillow objects
+    if not type(meme) is Image.Image or not type(face) is Image.Image:
+        raise Exception
     
     # get the correct size
     x, y = face.size
