@@ -7,3 +7,16 @@ def cropImage(relativeFilePath, top, left, height, width):
     area = (top, left, top+height, left+width)
     cropped_img = img.crop(area)
     return cropped_img
+
+def resizeImg(img, size:tuple)
+    if len(size) != 2:
+        raise Exception('size must have 2 items')
+    for infile in sys.argv[1:]:
+        outfile = os.path.splitext(infile)[0] + ".thumbnail"
+        if infile != outfile:
+            try:
+                im = Image.open(infile)
+                im.thumbnail(size, Image.ANTIALIAS)
+                return im
+            except IOError:
+                print "cannot resize '%s'" % infile
