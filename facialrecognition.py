@@ -6,7 +6,7 @@ from PIL import Image
 from azure.cognitiveservices.vision.face import FaceClient
 from msrest.authentication import CognitiveServicesCredentials
 from azure.cognitiveservices.vision.face.models import TrainingStatusType, Person, SnapshotObjectType, OperationStatusType
-from Img_handler import resizeImg, imgComposition, cropImage, take_photo
+from Img_handler import resizeImg, imgComposition, cropImage, take_photo, detectFace, newestSelfie
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -18,38 +18,39 @@ user_left = 0
 user_height = 100
 user_width = 100
 
-
 meme_folder_path = os.path.dirname(os.path.realpath(__file__)) + "/Memes"
-meme_path = ""
-
 user_folder_path = os.path.dirname(os.path.realpath(__file__)) + "/UserPhotos"
-
-take_photo()
-
-
-for r, d, f in os.walk(meme_folder_path):
-    randomint = random.randint(1,len(f))
-    meme_path = meme_folder_path + "/" + f[randomint]
-    print (meme_path)
-    cropImage(meme_path, user_top, user_left, user_height, user_width).show()
-    #f is the list of files in list
+final_folder_path = os.path.dirname(os.path.realpath(__file__)) + "/FinalProduct"
 
 
-face_client = FaceClient(endpoint, CognitiveServicesCredentials(key))
+meme_path = ""
+path, dirs, files = next(os.walk(user_folder_path))
+take_photo(len(files))
+user_path = newestSelfie(user_folder_path)
+#setup the user_photo
 
-# Detect a face in an image that contains a single face
-single_face_image_url = "https://scontent.fyyz1-1.fna.fbcdn.net/v/t1.15752-9/70888134_2522150378019046_2182028800106168320_n.png?_nc_cat=111&_nc_oc=AQl7S4cmsiXW0dJpeqZDfE6ZAe0azVJ0q3ULjB7iN2zoZx3p4vq_RpO-dHD1-okLlvw&_nc_ht=scontent.fyyz1-1.fna&oh=64c57e1b621411f92ea903ae527d62c9&oe=5DF2D71A"
-single_image_name = os.path.basename(single_face_image_url)
+r, d, f = next (os.walk(meme_folder_path))
+randomint = random.randint(1,len(f))
+meme_path = meme_folder_path + "/" + f[randomint-1]
+#setup the meme photo
 
-detected_faces = face_client.face.detect_with_url(url=single_face_image_url)
-if not detected_faces:
-    raise Exception('No face detected from image {}'.format(single_image_name))
-else:
-    print(detected_faces[0].face_rectangle)
-    print('face detected')
 
-thisdict = {
-  "brand": "Ford",
-  "model": "Mustang",
-  "year": 1964
-}
+user_pillow = Image.open(user_path)
+meme_pillow = Image.open(meme_path)
+
+user_json = detectFace(user_pillow)
+meme_json = detectFace(meme_pillow)
+
+print(user_json)
+
+
+cropped_user_pillow = cropImage(user_pillow, **user_json[0]["faceRectangle"])
+
+resized_cropped_user_pillow = resizeImg(cropped_user_pillow, (user_json[0]["faceRectangle"]["width"],user_json[0]["faceRectangle"]["height"]))#width,height
+
+final_product = imgComposition(meme_pillow, resized_cropped_user_pillow, meme_json[0]["faceRectangle"]["top"], meme_json[0]["faceRectangle"]["left"])
+
+r, d, f = next (os.walk(final_folder_path))
+print(final_folder_path + "final_product_{}.bmp".format(len(f) + 1))
+final_product.save(final_folder_path + "/final_product_{}.bmp".format(len(f) + 1), 'bmp')
+final_product.show()
