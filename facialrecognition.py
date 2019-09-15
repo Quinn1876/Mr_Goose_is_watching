@@ -1,5 +1,5 @@
 #https://docs.microsoft.com/en-us/azure/cognitive-services/face/quickstarts/python-sdk
-import asyncio, io, glob, os, sys, time, uuid, requests, random, cv2
+import asyncio, io, glob, os, sys, time, uuid, requests, random, cv2, base64
 from urllib.parse import urlparse
 from io import BytesIO
 from PIL import Image
@@ -36,6 +36,28 @@ meme_path = meme_folder_path + "/" + f[randomint-1]
 
 
 user_pillow = Image.open(user_path)
+buffered = BytesIO()
+user_pillow.save(buffered, format="JPEG")
+user_pillow_string = base64.b64encode(buffered.getvalue())
+
+
+
+response = requests.post(
+    'https://api.remove.bg/v1.0/removebg',
+    files={'image_file': open(user_path, 'rb')},
+    data={'size': 'auto'},  
+    headers={'X-Api-Key': 'fQtRqoeiDP9VEKSkP6jQhTtb'},
+)
+if response.status_code == requests.codes.ok:
+    buffered = io.BytesIO()
+    buffered.write(response.content)
+    buffered.seek(0)
+    user_background_gone = Image.open(buffered)
+else:
+    print("Error:", response.status_code, response.text)
+
+
+
 meme_pillow = Image.open(meme_path)
 
 user_json = detectFace(user_pillow)
@@ -44,7 +66,7 @@ meme_json = detectFace(meme_pillow)
 print(user_json)
 
 
-cropped_user_pillow = cropImage(user_pillow, **user_json[0]["faceRectangle"])
+cropped_user_pillow = cropImage(user_background_gone, **user_json[0]["faceRectangle"])
 #cropped_meme_pillow = cropImage(meme_pillow, **meme_json[0]["faceRectangle"])
 
 
@@ -55,7 +77,7 @@ resized_cropped_user_pillow = resizeImg(cropped_user_pillow, (meme_json[0]["face
 
 #resized_cropped_user_pillow = Image.convert(mode=cropped_meme_pillow.mode)
 #squareFace = Image.composite(cropped_meme_pillow, resized_cropped_user_pillow, "RGBA")
-
+#________________________________#
 
 
 
