@@ -19,7 +19,7 @@ def imgComposition(meme, face, top, left):
     
     # get the correct size
     width, height = face.size
-    meme.paste(face, (left,top,left+width,top+height))
+    meme.paste(face, (left,top,left+width,top+height), face)
     return meme
 
 def take_photo(photoCount):

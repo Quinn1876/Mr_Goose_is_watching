@@ -36,9 +36,9 @@ meme_path = meme_folder_path + "/" + f[randomint-1]
 
 
 user_pillow = Image.open(user_path)
-buffered = BytesIO()
-user_pillow.save(buffered, format="JPEG")
-user_pillow_string = base64.b64encode(buffered.getvalue())
+#buffered = BytesIO()
+#user_pillow.save(buffered, format="PNG")
+#user_pillow_string = base64.b64encode(buffered.getvalue())
 
 
 
@@ -60,7 +60,7 @@ else:
 
 meme_pillow = Image.open(meme_path)
 
-user_json = detectFace(user_pillow)
+user_json = detectFace(user_background_gone)
 meme_json = detectFace(meme_pillow)
 
 print(user_json)
@@ -71,6 +71,18 @@ cropped_user_pillow = cropImage(user_background_gone, **user_json[0]["faceRectan
 
 
 resized_cropped_user_pillow = resizeImg(cropped_user_pillow, (meme_json[0]["faceRectangle"]["width"],meme_json[0]["faceRectangle"]["height"]))#width,height
+
+resized_cropped_user_pillow = resized_cropped_user_pillow.convert("RGBA")
+datas = resized_cropped_user_pillow.getdata()
+
+newData = []
+for item in datas:
+    if item[0] == 0 and item[1] == 0 and item[2] == 0:
+        newData.append((0, 0, 0, 0))
+    else:
+        newData.append(item)
+
+resized_cropped_user_pillow.putdata(newData)
 
 #squareFace = Image.blend(resized_cropped_user_pillow, cropped_meme_pillow, 0.2)
 
