@@ -46,7 +46,7 @@ print(user_json)
 
 cropped_user_pillow = cropImage(user_pillow, **user_json[0]["faceRectangle"])
 
-resized_cropped_user_pillow = resizeImg(cropped_user_pillow, (user_json[0]["faceRectangle"]["width"],user_json[0]["faceRectangle"]["height"]))#width,height
+resized_cropped_user_pillow = resizeImg(cropped_user_pillow, (meme_json[0]["faceRectangle"]["width"],meme_json[0]["faceRectangle"]["height"]))#width,height
 
 final_product = imgComposition(meme_pillow, resized_cropped_user_pillow, meme_json[0]["faceRectangle"]["top"], meme_json[0]["faceRectangle"]["left"])
 

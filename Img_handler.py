@@ -5,10 +5,9 @@ import cv2
 def resizeImg(img, size:tuple):
     if len(size) != 2:
         raise Exception('size must have 2 items')
-        
     try:
-        img = img.resize(size, Image.NEAREST) #width,height
-        return img
+        im = img.resize(size, Image.NEAREST) #width,height
+        return im
     except IOError:
         print ("cannot resize %s" % (img))
                 
@@ -19,8 +18,8 @@ def imgComposition(meme, face, top, left):
     #     raise Exception
     
     # get the correct size
-    x, y = face.size
-    meme.paste(face, (top,left,top+x,left+y))
+    width, height = face.size
+    meme.paste(face, (left,top,left+width,top+height))
     return meme
 
 def take_photo(photoCount):
