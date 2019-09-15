@@ -57,3 +57,29 @@ def cropImage(meme_path, top, left, height, width):
     cropped_img = img.crop(area)
     return cropped_img
 
+import requests
+import io
+from dotenv import load_dotenv
+load_dotenv()
+
+
+FACE_KEY = os.getenv("FACE_KEY")
+FACE_ENDPOINT = os.getenv("FACE_ENDPOINT")
+print(FACE_KEY, FACE_ENDPOINT)
+
+def detectFace(img):
+    # img is a pillow item
+    # img = Image.open('memes\\'+filename)
+    endpoint = FACE_ENDPOINT
+    header = {
+        'Content-Type': 'application/octet-stream',
+        'Ocp-Apim-Subscription-Key': str(FACE_KEY)
+        }
+    output = io.BytesIO()
+    img.save(output, format='PNG')
+    data = output.getvalue()
+    print(data)
+    
+    call = requests.post(endpoint, headers=header, data=data)
+    print(call.json())
+    return call.json()
