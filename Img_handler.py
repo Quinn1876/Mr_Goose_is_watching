@@ -1,12 +1,4 @@
 from PIL import Image
-filename = files[0] # replace as needed
-from PIL import Image
-
-def cropImage(file_path, top, left, height, width):
-    img = Image.open(file_path)
-    area = (top, left, top+height, left+width)
-    cropped_img = img.crop(area)
-    return cropped_img
 
 def resizeImg(img, size:tuple)
     if len(size) != 2:
@@ -31,3 +23,37 @@ def imgComposition(meme, face, top, left):
     x, y = face.size
     meme.paste(face, (top,left,top+x,left+y))
     return meme
+
+def take_photo():
+
+    cam = cv2.VideoCapture(0)
+
+    cv2.namedWindow("test")
+
+    img_counter = 0
+
+    while True:
+        ret, frame = cam.read()
+        cv2.imshow("test", frame)
+        if not ret:
+            break
+        k = cv2.waitKey(1)
+
+        if k%256 == 32:
+            # SPACE pressed
+            img_name = "opencv_frame_{}.png".format(img_counter)
+            cv2.imwrite(os.path.join(os.path.dirname(os.path.realpath(__file__)) + "/UserPhotos" , img_name), frame)
+            print("{} written!".format(img_name))
+            img_counter += 1
+            break
+
+    cam.release()
+
+    cv2.destroyAllWindows()
+
+def cropImage(meme_path, top, left, height, width):
+    img = Image.open(meme_path)
+    area = (top, left, top+height, left+width)
+    cropped_img = img.crop(area)
+    return cropped_img
+
