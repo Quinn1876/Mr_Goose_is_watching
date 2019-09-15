@@ -26,11 +26,11 @@ def take_photo(photoCount):
 
     cam = cv2.VideoCapture(0)
 
-    cv2.namedWindow("test")
+    cv2.namedWindow("SMILE FOR THE CAMERA :)")
 
     while True:
         ret, frame = cam.read()
-        cv2.imshow("test", frame)
+        cv2.imshow("SMILE FOR THE CAMERA :)", frame)
         if not ret:
             break
         k = cv2.waitKey(1)
