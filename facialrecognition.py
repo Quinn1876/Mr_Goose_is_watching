@@ -1,8 +1,8 @@
 #https://docs.microsoft.com/en-us/azure/cognitive-services/face/quickstarts/python-sdk
-import asyncio, io, glob, os, sys, time, uuid, requests, random
+import asyncio, io, glob, os, sys, time, uuid, requests, random, cv2
 from urllib.parse import urlparse
 from io import BytesIO
-from PIL import Image, ImageDraw
+from PIL import Image
 from azure.cognitiveservices.vision.face import FaceClient
 from msrest.authentication import CognitiveServicesCredentials
 from azure.cognitiveservices.vision.face.models import TrainingStatusType, Person, SnapshotObjectType, OperationStatusType
@@ -10,16 +10,66 @@ from azure.cognitiveservices.vision.face.models import TrainingStatusType, Perso
 from dotenv import load_dotenv
 load_dotenv()
 
+def take_photo():
+
+    cam = cv2.VideoCapture(0)
+
+    cv2.namedWindow("test")
+
+    img_counter = 0
+
+    while True:
+        ret, frame = cam.read()
+        cv2.imshow("test", frame)
+        if not ret:
+            break
+        k = cv2.waitKey(1)
+
+        if k%256 == 32:
+            # SPACE pressed
+            img_name = "opencv_frame_{}.png".format(img_counter)
+            cv2.imwrite(os.path.join(os.path.dirname(os.path.realpath(__file__)) + "/UserPhotos" , img_name), frame)
+            print("{} written!".format(img_name))
+            img_counter += 1
+            break
+
+    cam.release()
+
+    cv2.destroyAllWindows()
+
+def cropImage(meme_path, top, left, height, width):
+    img = Image.open(meme_path)
+    area = (top, left, top+height, left+width)
+    cropped_img = img.crop(area)
+    return cropped_img
+
+
+
+
+
 key = os.environ["FACE_KEY"]
 endpoint = os.environ["FACE_ENDPOINT"]
+user_top = 0
+user_left = 0
+user_height = 100
+user_width = 100
+
 
 meme_folder_path = os.path.dirname(os.path.realpath(__file__)) + "/Memes"
 meme_path = ""
+
+user_folder_path = os.path.dirname(os.path.realpath(__file__)) + "/UserPhotos"
+
+take_photo()
+
+
 for r, d, f in os.walk(meme_folder_path):
     randomint = random.randint(1,len(f))
-    meme_path = meme_folder_path + f[randomint]
+    meme_path = meme_folder_path + "/" + f[randomint]
     print (meme_path)
+    cropImage(meme_path, user_top, user_left, user_height, user_width).show()
     #f is the list of files in list
+
 
 face_client = FaceClient(endpoint, CognitiveServicesCredentials(key))
 
@@ -33,28 +83,6 @@ if not detected_faces:
 else:
     print(detected_faces[0].face_rectangle)
     print('face detected')
-
-
-# # Convert width height to a point in a rectangle
-# def getRectangle(faceDictionary):
-#     rect = faceDictionary['face_rectangle']
-#     left = rect['left']
-#     top = rect['top']
-#     bottom = left + rect['height']
-#     right = top + rect['width']
-#     return ((left, top), (bottom, right))
-
-# # Download the image from the url
-# response = requests.get(single_face_image_url)
-# img = Image.open(BytesIO(response.content))
-
-# # For each face returned use the face rectangle and draw a red box.
-# draw = ImageDraw.Draw(img)
-# for face in detected_faces:
-#     draw.rectangle(getRectangle(face), outline='red')
-
-# # Display the image in the users default image browser.
-# img.show()
 
 thisdict = {
   "brand": "Ford",
