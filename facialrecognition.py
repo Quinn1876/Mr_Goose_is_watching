@@ -45,10 +45,22 @@ print(user_json)
 
 
 cropped_user_pillow = cropImage(user_pillow, **user_json[0]["faceRectangle"])
+cropped_meme_pillow = cropImage(meme_pillow, **meme_json[0]["faceRectangle"])
+
 
 resized_cropped_user_pillow = resizeImg(cropped_user_pillow, (meme_json[0]["faceRectangle"]["width"],meme_json[0]["faceRectangle"]["height"]))#width,height
 
-final_product = imgComposition(meme_pillow, resized_cropped_user_pillow, meme_json[0]["faceRectangle"]["top"], meme_json[0]["faceRectangle"]["left"])
+#squareFace = Image.blend(resized_cropped_user_pillow, cropped_meme_pillow, 0.2)
+
+
+#resized_cropped_user_pillow = Image.convert(mode=cropped_meme_pillow.mode)
+squareFace = Image.composite(cropped_meme_pillow, resized_cropped_user_pillow, "RGBA")
+
+
+
+
+
+final_product = imgComposition(meme_pillow, squareFace, meme_json[0]["faceRectangle"]["top"], meme_json[0]["faceRectangle"]["left"])
 
 r, d, f = next (os.walk(final_folder_path))
 print(final_folder_path + "final_product_{}.bmp".format(len(f) + 1))
